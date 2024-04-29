@@ -42,3 +42,18 @@ head(breast_cancer_data)
 
 # Open the dataset in a viewer window
 View(breast_cancer_data)
+
+# Load necessary library
+library(caret)
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Split the dataset into training (70%) and testing (30%) sets
+train_index <- createDataPartition(y = breast_cancer_data$diagnosis, p = 0.7, list = FALSE)
+training_data <- breast_cancer_data[train_index, ]
+testing_data <- breast_cancer_data[-train_index, ]
+
+# Print the dimensions of training and testing sets
+cat("Training set dimensions:", nrow(training_data), "observations and", ncol(training_data), "variables\n")
+cat("Testing set dimensions:", nrow(testing_data), "observations and", ncol(testing_data), "variables\n")
