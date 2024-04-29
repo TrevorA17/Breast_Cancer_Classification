@@ -42,3 +42,10 @@ head(breast_cancer_data)
 
 # Open the dataset in a viewer window
 View(breast_cancer_data)
+
+# Summary statistics for numeric variables
+summary(breast_cancer_data[, -c(1, 2)]) 
+
+# Frequency table for the 'diagnosis' variable
+table(breast_cancer_data$diagnosis)
+
