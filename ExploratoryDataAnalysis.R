@@ -101,3 +101,9 @@ for (col in names(breast_cancer_data[, -c(1, 2)])) {
 # Print measures of distribution
 print(distribution_stats)
 
+# Compute correlation matrix
+correlation_matrix <- cor(breast_cancer_data[, -c(1, 2)])
+
+# Print correlation matrix
+print(correlation_matrix)
+
