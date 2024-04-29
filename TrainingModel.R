@@ -63,7 +63,7 @@ library(boot)
 
 # Define the function to calculate the statistic of interest (e.g., mean, median, etc.)
 statistic_function <- function(data, indices) {
-  statistic <- mean(data[indices, ])  # Change to the desired statistic (e.g., median) as needed
+  statistic <- mean(data[indices])  # Calculate the mean using the indices
   return(statistic)
 }
 
