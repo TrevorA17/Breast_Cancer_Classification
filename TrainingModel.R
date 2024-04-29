@@ -72,3 +72,16 @@ bootstrap_result <- boot(data = breast_cancer_data$radius_mean, statistic = stat
 
 # Print the bootstrap results
 print(bootstrap_result)
+
+# Load necessary libraries
+library(caret)
+
+# Define the number of folds
+num_folds <- 10
+
+# Perform k-fold cross-validation
+cv_results <- trainControl(method = "cv", number = num_folds)
+model <- train(diagnosis ~ ., data = breast_cancer_data, method = "glm", trControl = cv_results)
+
+# Print the cross-validation results
+print(summary(model))
