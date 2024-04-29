@@ -107,3 +107,17 @@ correlation_matrix <- cor(breast_cancer_data[, -c(1, 2)])
 # Print correlation matrix
 print(correlation_matrix)
 
+# Load necessary library for visualization
+library(ggplot2)
+
+# Plot correlation heatmap
+ggplot2::ggplot(data = reshape2::melt(correlation_matrix), aes(Var2, Var1, fill = value)) +
+  ggplot2::geom_tile() +
+  ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                                midpoint = 0, limit = c(-1, 1), space = "Lab", 
+                                name="Correlation") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, size = 10, hjust = 1)) +
+  ggplot2::coord_fixed()
+
+
