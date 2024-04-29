@@ -142,3 +142,24 @@ predictions_rf <- predict(rf_model, newdata = testing_data)
 # Evaluate performance
 confusionMatrix(predictions_rf, testing_data[[dependent_variable]])
 
+# Load necessary libraries
+library(caret)
+
+# Define dependent variable for classification
+dependent_variable_classification <- "diagnosis"
+
+# Train logistic regression model
+logistic_model <- train(as.formula(paste(dependent_variable_classification, "~ .")), data = breast_cancer_data, method = "glm", trControl = trainControl(method = "cv", number = 10))
+
+# Train SVM model
+svm_model <- train(as.formula(paste(dependent_variable_classification, "~ .")), data = breast_cancer_data, method = "svmLinear", trControl = trainControl(method = "cv", number = 10))
+
+# Train random forests model
+rf_model <- train(as.formula(paste(dependent_variable_classification, "~ .")), data = breast_cancer_data, method = "rf", trControl = trainControl(method = "cv", number = 10))
+
+# Compare model performance using resamples
+models_comparison_classification <- resamples(list(Logistic = logistic_model, SVM = svm_model, Random_Forest = rf_model))
+
+# Summarize model performance
+summary(models_comparison_classification)
+
