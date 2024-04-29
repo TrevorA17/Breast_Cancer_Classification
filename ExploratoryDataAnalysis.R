@@ -121,6 +121,43 @@ ggplot2::ggplot(data = reshape2::melt(correlation_matrix), aes(Var2, Var1, fill 
   ggplot2::coord_fixed()
 
 
+# Load necessary libraries for visualization
+library(ggplot2)
 
+# Histograms for each numeric variable
+histogram_radius_mean <- ggplot(data = breast_cancer_data, aes(x = radius_mean)) +
+  geom_histogram(fill = "lightblue", color = "black") +
+  labs(title = "Histogram of Radius Mean", x = "Radius Mean", y = "Frequency")
 
+histogram_texture_mean <- ggplot(data = breast_cancer_data, aes(x = texture_mean)) +
+  geom_histogram(fill = "lightblue", color = "black") +
+  labs(title = "Histogram of Texture Mean", x = "Texture Mean", y = "Frequency")
+
+# Print histograms individually
+print(histogram_radius_mean)
+print(histogram_texture_mean)
+
+# Boxplots for each numeric variable
+boxplot_radius_mean <- ggplot(data = breast_cancer_data, aes(x = 1, y = radius_mean)) +
+  geom_boxplot(fill = "lightblue", color = "black") +
+  labs(title = "Boxplot of Radius Mean", x = "", y = "Radius Mean")
+
+boxplot_texture_mean <- ggplot(data = breast_cancer_data, aes(x = 1, y = texture_mean)) +
+  geom_boxplot(fill = "lightblue", color = "black") +
+  labs(title = "Boxplot of Texture Mean", x = "", y = "Texture Mean")
+
+# Print boxplots individually
+print(boxplot_radius_mean)
+print(boxplot_texture_mean)
+
+# Load necessary libraries for visualization
+library(ggplot2)
+
+# Scatterplots for each pair of numeric variables
+scatterplot_radius_mean_texture_mean <- ggplot(data = breast_cancer_data, aes(x = radius_mean, y = texture_mean)) +
+  geom_point() +
+  labs(title = "Scatterplot of Radius Mean vs. Texture Mean", x = "Radius Mean", y = "Texture Mean")
+
+# Print scatterplots individually
+print(scatterplot_radius_mean_texture_mean)
 
