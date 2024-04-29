@@ -40,6 +40,13 @@ str(breast_cancer_data)
 # View the first few rows of the dataset
 head(breast_cancer_data)
 
+# Remove the first column from the dataset
+breast_cancer_data <- breast_cancer_data[, -1]
+
+# Check the structure of the dataset after removing the first column
+str(breast_cancer_data)
+
+
 # Open the dataset in a viewer window
 View(breast_cancer_data)
 
@@ -85,3 +92,35 @@ model <- train(diagnosis ~ ., data = breast_cancer_data, method = "glm", trContr
 
 # Print the cross-validation results
 print(summary(model))
+
+# Load necessary libraries
+library(caret)
+
+# Define the dependent variable
+dependent_variable <- "diagnosis"
+
+
+
+# Split the data into training and testing sets
+set.seed(123)  # For reproducibility
+train_index <- createDataPartition(breast_cancer_data[[dependent_variable]], p = 0.7, list = FALSE)
+training_data <- breast_cancer_data[train_index, ]
+testing_data <- breast_cancer_data[-train_index, ]
+
+# Train logistic regression model
+logistic_model <- train(as.formula(paste(dependent_variable, "~ .")), data = training_data, method = "glm", trControl = trainControl(method = "cv", number = 10))
+
+
+# Make predictions on testing data
+predictions_logistic <- predict(logistic_model, newdata = testing_data)
+
+# Evaluate performance
+confusionMatrix(predictions_logistic, testing_data[[dependent_variable]])
+
+
+# Make predictions on testing data
+predictions_logistic <- predict(logistic_model, newdata = testing_data)
+
+# Evaluate performance
+confusionMatrix(predictions_logistic, testing_data[[dependent_variable]])
+

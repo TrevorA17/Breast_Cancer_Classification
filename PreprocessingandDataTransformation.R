@@ -40,6 +40,13 @@ str(breast_cancer_data)
 # View the first few rows of the dataset
 head(breast_cancer_data)
 
+# Remove the first column from the dataset
+breast_cancer_data <- breast_cancer_data[, -1]
+
+# Check the structure of the dataset after removing the first column
+str(breast_cancer_data)
+
+
 # Open the dataset in a viewer window
 View(breast_cancer_data)
 
