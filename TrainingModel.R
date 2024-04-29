@@ -57,3 +57,18 @@ testing_data <- breast_cancer_data[-train_index, ]
 # Print the dimensions of training and testing sets
 cat("Training set dimensions:", nrow(training_data), "observations and", ncol(training_data), "variables\n")
 cat("Testing set dimensions:", nrow(testing_data), "observations and", ncol(testing_data), "variables\n")
+
+# Load necessary library
+library(boot)
+
+# Define the function to calculate the statistic of interest (e.g., mean, median, etc.)
+statistic_function <- function(data, indices) {
+  statistic <- mean(data[indices, ])  # Change to the desired statistic (e.g., median) as needed
+  return(statistic)
+}
+
+# Perform bootstrapping
+bootstrap_result <- boot(data = breast_cancer_data$radius_mean, statistic = statistic_function, R = 1000)
+
+# Print the bootstrap results
+print(bootstrap_result)
