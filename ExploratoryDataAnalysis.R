@@ -49,3 +49,55 @@ summary(breast_cancer_data[, -c(1, 2)])
 # Frequency table for the 'diagnosis' variable
 table(breast_cancer_data$diagnosis)
 
+# Calculate mean for numeric variables
+means <- sapply(breast_cancer_data[, -c(1, 2)], mean)
+
+# Calculate median for numeric variables
+medians <- sapply(breast_cancer_data[, -c(1, 2)], median)
+
+# Calculate mode for the 'diagnosis' variable
+mode <- as.character(names(sort(table(breast_cancer_data$diagnosis), decreasing = TRUE)[1]))
+
+# Combine results into a data frame
+central_tendency <- data.frame(
+  Variable = names(means),
+  Mean = means,
+  Median = medians
+)
+
+# Add mode for the 'diagnosis' variable
+mode_df <- data.frame(Variable = "diagnosis", Mode = mode)
+central_tendency <- rbind(central_tendency, mode_df)
+
+# Print central tendency measures
+print(central_tendency)
+
+# Compute measures of distribution for numeric variables
+distribution_stats <- data.frame(
+  Variable = character(),
+  Variance = numeric(),
+  Standard_Deviation = numeric(),
+  Skewness = numeric(),
+  Kurtosis = numeric(),
+  stringsAsFactors = FALSE
+)
+
+# Loop through numeric variables
+for (col in names(breast_cancer_data[, -c(1, 2)])) {
+  var_value <- var(breast_cancer_data[, col])
+  sd_value <- sd(breast_cancer_data[, col])
+  skewness_value <- moments::skewness(breast_cancer_data[, col])
+  kurtosis_value <- moments::kurtosis(breast_cancer_data[, col])
+  
+  distribution_stats <- rbind(distribution_stats, data.frame(
+    Variable = col,
+    Variance = var_value,
+    Standard_Deviation = sd_value,
+    Skewness = skewness_value,
+    Kurtosis = kurtosis_value
+  ))
+}
+
+# Print measures of distribution
+print(distribution_stats)
+
