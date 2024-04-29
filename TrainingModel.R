@@ -124,3 +124,21 @@ predictions_logistic <- predict(logistic_model, newdata = testing_data)
 # Evaluate performance
 confusionMatrix(predictions_logistic, testing_data[[dependent_variable]])
 
+# Train SVM model
+svm_model <- train(as.formula(paste(dependent_variable, "~ .")), data = training_data, method = "svmLinear", trControl = trainControl(method = "cv", number = 10))
+
+# Make predictions on testing data
+predictions_svm <- predict(svm_model, newdata = testing_data)
+
+# Evaluate performance
+confusionMatrix(predictions_svm, testing_data[[dependent_variable]])
+
+# Train random forests model
+rf_model <- train(as.formula(paste(dependent_variable, "~ .")), data = training_data, method = "rf", trControl = trainControl(method = "cv", number = 10))
+
+# Make predictions on testing data
+predictions_rf <- predict(rf_model, newdata = testing_data)
+
+# Evaluate performance
+confusionMatrix(predictions_rf, testing_data[[dependent_variable]])
+
