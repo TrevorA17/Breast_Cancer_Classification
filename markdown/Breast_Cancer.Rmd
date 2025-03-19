@@ -1,0 +1,439 @@
+---
+title: "Breast Cancer Classification"
+author: "Trevor Okinda"
+date: "2024"
+output:
+  github_document: 
+    toc: yes
+    toc_depth: 4
+    fig_width: 6
+    fig_height: 4
+    df_print: default
+editor_options:
+  chunk_output_type: console
+---
+
+# Student Details
+
+|                                              |     |
+|----------------------------------------------|-----|
+| **Student ID Number**                        | 134780 |
+| **Student Name**                             | Trevor Okinda |
+| **BBIT 4.2 Group**                           | C |
+| **Project Name**                             | Breast Cancer Classification |
+
+# Setup Chunk
+
+**Note:** the following KnitR options have been set as the global defaults: <BR> `knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE, collapse = FALSE, tidy = TRUE)`.
+
+More KnitR options are documented here <https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html> and here <https://yihui.org/knitr/options/>.
+
+```{r setup, include=FALSE}
+library(formatR)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  collapse = FALSE
+)
+```
+
+# Understanding the Dataset (Exploratory Data Analysis (EDA))
+
+## Loading the Dataset
+
+### Source: 
+
+The dataset that was used can be downloaded here: *\<https://www.kaggle.com/datasets/yasserh/breast-cancer-dataset\>*
+
+### Reference:
+
+*\<*Breast Cancer Wisconsin (Diagnostic) Dataset [Data set]. (n.d.). Kaggle. https://www.kaggle.com/datasets/yasserh/breast-cancer-dataset*
+\>\
+
+Refer to the APA 7th edition manual for rules on how to cite datasets: <https://apastyle.apa.org/style-grammar-guidelines/references/examples/data-set-references>*
+
+# Exploratory Data Analysis
+## Load dataset
+```{r load dataset}
+# Load the breast cancer dataset
+breast_cancer_data <- read.csv("breast_cancer.csv", colClasses = c(
+  id = "character",
+  diagnosis = "factor",
+  radius_mean = "numeric",
+  texture_mean = "numeric",
+  perimeter_mean = "numeric",
+  area_mean = "numeric",
+  smoothness_mean = "numeric",
+  compactness_mean = "numeric",
+  concavity_mean = "numeric",
+  concave_points_mean = "numeric",
+  symmetry_mean = "numeric",
+  fractal_dimension_mean = "numeric",
+  radius_se = "numeric",
+  texture_se = "numeric",
+  perimeter_se = "numeric",
+  area_se = "numeric",
+  smoothness_se = "numeric",
+  compactness_se = "numeric",
+  concavity_se = "numeric",
+  concave_points_se = "numeric",
+  symmetry_se = "numeric",
+  fractal_dimension_se = "numeric",
+  radius_worst = "numeric",
+  texture_worst = "numeric",
+  perimeter_worst = "numeric",
+  area_worst = "numeric",
+  smoothness_worst = "numeric",
+  compactness_worst = "numeric",
+  concavity_worst = "numeric",
+  concave_points_worst = "numeric",
+  symmetry_worst = "numeric",
+  fractal_dimension_worst = "numeric"
+), header = TRUE)
+
+# Display the structure of the dataset
+str(breast_cancer_data)
+
+# View the first few rows of the dataset
+head(breast_cancer_data)
+
+# Open the dataset in a viewer window
+View(breast_cancer_data)
+```
+
+## Measures of frequency
+```{r}
+# Summary statistics for numeric variables
+summary(breast_cancer_data[, -c(1, 2)]) 
+
+# Frequency table for the 'diagnosis' variable
+table(breast_cancer_data$diagnosis)
+
+```
+
+## Measures of Central Tendency
+```{r measures of central tendency}
+# Calculate mean for numeric variables
+means <- sapply(breast_cancer_data[, -c(1, 2)], mean)
+
+# Calculate median for numeric variables
+medians <- sapply(breast_cancer_data[, -c(1, 2)], median)
+
+# Calculate mode for the 'diagnosis' variable
+mode <- as.character(names(sort(table(breast_cancer_data$diagnosis), decreasing = TRUE)[1]))
+
+# Combine results into a data frame
+central_tendency <- data.frame(
+  Variable = names(means),
+  Mean = means,
+  Median = medians
+)
+
+# Add mode for the 'diagnosis' variable
+# Add an empty 'Mean' and 'Median' column to match 'central_tendency'
+mode_df <- data.frame(
+  Variable = "diagnosis",
+  Mean = NA, 
+  Median = NA 
+)
+central_tendency <- rbind(central_tendency, mode_df)
+
+# Print central tendency measures
+print(central_tendency)
+```
+
+## Measures of Distribution
+```{r}
+# Compute measures of distribution for numeric variables
+distribution_stats <- data.frame(
+  Variable = character(),
+  Variance = numeric(),
+  Standard_Deviation = numeric(),
+  Skewness = numeric(),
+  Kurtosis = numeric(),
+  stringsAsFactors = FALSE
+)
+
+# Loop through numeric variables
+for (col in names(breast_cancer_data[, -c(1, 2)])) {
+  var_value <- var(breast_cancer_data[, col])
+  sd_value <- sd(breast_cancer_data[, col])
+  skewness_value <- moments::skewness(breast_cancer_data[, col])
+  kurtosis_value <- moments::kurtosis(breast_cancer_data[, col])
+  
+  distribution_stats <- rbind(distribution_stats, data.frame(
+    Variable = col,
+    Variance = var_value,
+    Standard_Deviation = sd_value,
+    Skewness = skewness_value,
+    Kurtosis = kurtosis_value
+  ))
+}
+
+# Print measures of distribution
+print(distribution_stats)
+```
+
+## Measures of relationship
+```{r}
+# Compute correlation matrix
+correlation_matrix <- cor(breast_cancer_data[, -c(1, 2)])
+
+# Print correlation matrix
+print(correlation_matrix)
+```
+
+## Plots
+```{r}
+# Load necessary library for visualization
+library(ggplot2)
+
+# Plot correlation heatmap
+ggplot2::ggplot(data = reshape2::melt(correlation_matrix), aes(Var2, Var1, fill = value)) +
+  ggplot2::geom_tile() +
+  ggplot2::scale_fill_gradient2(low = "blue", high = "red", mid = "white", 
+                                midpoint = 0, limit = c(-1, 1), space = "Lab", 
+                                name="Correlation") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, vjust = 1, size = 10, hjust = 1)) +
+  ggplot2::coord_fixed()
+
+
+# Load necessary libraries for visualization
+library(ggplot2)
+
+# Histograms for each numeric variable
+histogram_radius_mean <- ggplot(data = breast_cancer_data, aes(x = radius_mean)) +
+  geom_histogram(fill = "lightblue", color = "black") +
+  labs(title = "Histogram of Radius Mean", x = "Radius Mean", y = "Frequency")
+
+histogram_texture_mean <- ggplot(data = breast_cancer_data, aes(x = texture_mean)) +
+  geom_histogram(fill = "lightblue", color = "black") +
+  labs(title = "Histogram of Texture Mean", x = "Texture Mean", y = "Frequency")
+
+# Print histograms individually
+print(histogram_radius_mean)
+print(histogram_texture_mean)
+
+# Boxplots for each numeric variable
+boxplot_radius_mean <- ggplot(data = breast_cancer_data, aes(x = 1, y = radius_mean)) +
+  geom_boxplot(fill = "lightblue", color = "black") +
+  labs(title = "Boxplot of Radius Mean", x = "", y = "Radius Mean")
+
+boxplot_texture_mean <- ggplot(data = breast_cancer_data, aes(x = 1, y = texture_mean)) +
+  geom_boxplot(fill = "lightblue", color = "black") +
+  labs(title = "Boxplot of Texture Mean", x = "", y = "Texture Mean")
+
+# Print boxplots individually
+print(boxplot_radius_mean)
+print(boxplot_texture_mean)
+
+# Load necessary libraries for visualization
+library(ggplot2)
+
+# Scatterplots for each pair of numeric variables
+scatterplot_radius_mean_texture_mean <- ggplot(data = breast_cancer_data, aes(x = radius_mean, y = texture_mean)) +
+  geom_point() +
+  labs(title = "Scatterplot of Radius Mean vs. Texture Mean", x = "Radius Mean", y = "Texture Mean")
+
+# Print scatterplots individually
+print(scatterplot_radius_mean_texture_mean)
+```
+
+# Preprocessing and Data Transformation
+## Missing Values
+```{r}
+# Check for missing values in each column
+missing_values <- sapply(breast_cancer_data, function(x) sum(is.na(x)))
+
+# Print columns with missing values
+print(missing_values[missing_values > 0])
+```
+
+## Data normalization
+```{r}
+# Load necessary libraries
+library(dplyr)
+
+# Function to normalize a numeric vector
+normalize <- function(x) {
+  (x - min(x)) / (max(x) - min(x))
+}
+
+# Function to log-transform a numeric vector
+log_transform <- function(x) {
+  log(x + 1)  # Adding 1 to avoid log(0) issue
+}
+
+# Apply normalization and log transformation to numeric variables
+breast_cancer_data_transformed <- breast_cancer_data %>%
+  mutate(across(where(is.numeric), normalize)) %>%
+  mutate(across(c(radius_mean, texture_mean), log_transform))
+
+# View the first few rows of the transformed dataset
+head(breast_cancer_data_transformed)
+```
+
+# Training Model
+## Data Splitting
+```{r}
+# Load necessary library
+library(caret)
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Split the dataset into training (70%) and testing (30%) sets
+train_index <- createDataPartition(y = breast_cancer_data$diagnosis, p = 0.7, list = FALSE)
+training_data <- breast_cancer_data[train_index, ]
+testing_data <- breast_cancer_data[-train_index, ]
+
+# Print the dimensions of training and testing sets
+cat("Training set dimensions:", nrow(training_data), "observations and", ncol(training_data), "variables\n")
+cat("Testing set dimensions:", nrow(testing_data), "observations and", ncol(testing_data), "variables\n")
+```
+
+## Bootstrapping
+```{r}
+# Load necessary library
+library(boot)
+
+# Define the function to calculate the statistic of interest (e.g., mean, median, etc.)
+statistic_function <- function(data, indices) {
+  statistic <- mean(data[indices])  # Calculate the mean using the indices
+  return(statistic)
+}
+
+# Perform bootstrapping
+bootstrap_result <- boot(data = breast_cancer_data$radius_mean, statistic = statistic_function, R = 1000)
+
+# Print the bootstrap results
+print(bootstrap_result)
+```
+
+## Cross-validation
+```{r}
+# Load necessary libraries
+library(caret)
+
+# Define the number of folds
+num_folds <- 10
+
+# Perform k-fold cross-validation
+cv_results <- trainControl(method = "cv", number = num_folds)
+model <- train(diagnosis ~ ., data = breast_cancer_data, method = "glm", trControl = cv_results)
+
+# Print the cross-validation results
+print(summary(model))
+```
+
+## Train different models
+```{r}
+# Load necessary libraries
+library(caret)
+
+# Define the dependent variable
+dependent_variable <- "diagnosis"
+
+# Remove 'id' column if it exists
+breast_cancer_data <- breast_cancer_data[, !names(breast_cancer_data) %in% "id"]
+
+# Ensure diagnosis is a factor
+breast_cancer_data$diagnosis <- as.factor(breast_cancer_data$diagnosis)
+
+# Split the data into training and testing sets
+set.seed(123)  # For reproducibility
+train_index <- createDataPartition(breast_cancer_data[[dependent_variable]], p = 0.7, list = FALSE)
+training_data <- breast_cancer_data[train_index, ]
+testing_data <- breast_cancer_data[-train_index, ]
+
+# Ensure factor levels are consistent between training and testing sets
+training_data$diagnosis <- factor(training_data$diagnosis, levels = levels(breast_cancer_data$diagnosis))
+testing_data$diagnosis <- factor(testing_data$diagnosis, levels = levels(breast_cancer_data$diagnosis))
+
+# Train logistic regression model
+logistic_model <- train(as.formula(paste(dependent_variable, "~ .")), data = training_data, method = "glm", trControl = trainControl(method = "cv", number = 10))
+
+# Make predictions on testing data
+predictions_logistic <- predict(logistic_model, newdata = testing_data)
+
+# Evaluate performance
+confusionMatrix(predictions_logistic, testing_data[[dependent_variable]])
+
+# Train SVM model
+svm_model <- train(as.formula(paste(dependent_variable, "~ .")), data = training_data, method = "svmLinear", trControl = trainControl(method = "cv", number = 10))
+
+# Make predictions on testing data
+predictions_svm <- predict(svm_model, newdata = testing_data)
+
+# Evaluate performance
+confusionMatrix(predictions_svm, testing_data[[dependent_variable]])
+
+# Train random forests model
+rf_model <- train(as.formula(paste(dependent_variable, "~ .")), data = training_data, method = "rf", trControl = trainControl(method = "cv", number = 10))
+
+# Make predictions on testing data
+predictions_rf <- predict(rf_model, newdata = testing_data)
+
+# Evaluate performance
+confusionMatrix(predictions_rf, testing_data[[dependent_variable]])
+
+```
+
+## Perfomance Comparison
+```{r}
+# Compare model performance using resamples
+models_comparison_classification <- resamples(list(Logistic = logistic_model, SVM = svm_model, Random_Forest = rf_model))
+
+# Summarize model performance
+summary(models_comparison_classification)
+```
+
+## Saving Model
+```{r}
+# Load the saved model
+loaded_svm_model <- readRDS("./models/svm_model.rds")
+
+# Prepare new data for prediction
+new_data <- data.frame(
+  radius_mean = 15.0,
+  texture_mean = 25.0,
+  perimeter_mean = 100.0,
+  area_mean = 700.0,
+  smoothness_mean = 0.1,
+  compactness_mean = 0.2,
+  concavity_mean = 0.3,
+  concave_points_mean = 0.15,
+  symmetry_mean = 0.2,
+  fractal_dimension_mean = 0.08,
+  radius_se = 0.5,
+  texture_se = 1.0,
+  perimeter_se = 3.0,
+  area_se = 50.0,
+  smoothness_se = 0.01,
+  compactness_se = 0.05,
+  concavity_se = 0.1,
+  concave_points_se = 0.03,
+  symmetry_se = 0.06,
+  fractal_dimension_se = 0.008,
+  radius_worst = 18.0,
+  texture_worst = 29.0,
+  perimeter_worst = 120.0,
+  area_worst = 800.0,
+  smoothness_worst = 0.12,
+  compactness_worst = 0.25,
+  concavity_worst = 0.35,
+  concave_points_worst = 0.2,
+  symmetry_worst = 0.3,
+  fractal_dimension_worst = 0.1
+)
+
+# Load necessary library
+library(kernlab)
+
+# Use the loaded model to make predictions
+predictions_loaded_model <- predict(loaded_svm_model, newdata = new_data)
+
+# Print predictions
+print(predictions_loaded_model)
+```
+

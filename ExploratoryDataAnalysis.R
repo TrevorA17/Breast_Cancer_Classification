@@ -66,7 +66,12 @@ central_tendency <- data.frame(
 )
 
 # Add mode for the 'diagnosis' variable
-mode_df <- data.frame(Variable = "diagnosis", Mode = mode)
+# Add an empty 'Mean' and 'Median' column to match 'central_tendency'
+mode_df <- data.frame(
+  Variable = "diagnosis",
+  Mean = NA, 
+  Median = NA 
+)
 central_tendency <- rbind(central_tendency, mode_df)
 
 # Print central tendency measures
